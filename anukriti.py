@@ -28,7 +28,7 @@ def process_frame(frame, frame_count, output_folder, app, swapper, source_face, 
     for face in faces:
         face_features = face.normed_embedding
         similarity = np.dot(face_features, frame_photo_face_features.T)
-        if similarity > 0.5:
+        if similarity > 0.3:
             frame = swapper.get(frame, face, source_face[0], paste_back=True)
 
     frame_filename = os.path.join(output_folder, f"frame_{frame_count}.png")
@@ -61,6 +61,24 @@ def read_and_process_video(video_path, output_folder, app, swapper, source_face_
 
     cap.release()
     cv2.destroyAllWindows()
+
+def process_single_image(image_path, output_folder, app, swapper, source_face_dict):
+    img = cv2.imread(image_path)
+    if img is None:
+        print("Error: Could not read image.")
+        return
+
+    faces = app.get(img)
+    for face in faces:
+        face_features = face.normed_embedding
+        for frame_photo_name, (source_face, frame_photo_face_features) in source_face_dict.items():
+            similarity = np.dot(face_features, frame_photo_face_features.T)
+            if similarity > 0.5:
+                img = swapper.get(img, face, source_face[0], paste_back=True)
+
+    output_filename = os.path.join(output_folder, "output_image.png")
+    cv2.imwrite(output_filename, img)
+
 def reassemble_video(output_folder, original_video_path, final_output_folder):
     # Get frame rate of original video
     cap = cv2.VideoCapture(original_video_path)
@@ -112,45 +130,48 @@ def reassemble_video(output_folder, original_video_path, final_output_folder):
 
     print("Video reassembled successfully with audio.")
 
+
 def clear_gpu_memory(app, swapper):
     del app
     del swapper
     torch.cuda.empty_cache()
 
-def main():
+import argparse
+
+def main(args):
     create_directories()
 
-    app, swapper = initialize_insightface('/content/drive/MyDrive/inswapper_128 (1).onnx')
+    app, swapper = initialize_insightface(args.model_path)
 
-    # Dictionary to hold multiple source and frame photos
     source_face_dict = {}
+    for source_img_path, frame_img_path in zip(args.source_images, args.frame_images):
+        source_img = cv2.imread(source_img_path)
+        source_face = app.get(source_img)
+        frame_photo = cv2.imread(frame_img_path)
+        frame_photo_face = app.get(frame_photo)
+        frame_photo_face_features = frame_photo_face[0].normed_embedding
+        source_face_dict[frame_img_path] = (source_face, frame_photo_face_features)
 
-    # Example with two source-frame photo pairs
-    source_img1 = cv2.imread('/content/drive/MyDrive/khujli/ji_1.jpg')
-    source_face1 = app.get(source_img1)
-    frame_photo1 = cv2.imread('/content/drive/MyDrive/khujli/amol.jpg')
-    frame_photo_face1 = app.get(frame_photo1)
-    frame_photo_face_features1 = frame_photo_face1[0].normed_embedding
-    source_face_dict["frame1"] = (source_face1, frame_photo_face_features1)
+    output_folder = args.output_folder
 
-    source_img2 = cv2.imread('/content/drive/MyDrive/khujli/kat.jpg')
-    source_face2 = app.get(source_img2)
-    frame_photo2 = cv2.imread('/content/drive/MyDrive/khujli/actress.jpg')
-    frame_photo_face2 = app.get(frame_photo2)
-    frame_photo_face_features2 = frame_photo_face2[0].normed_embedding
-    source_face_dict["frame2"] = (source_face2, frame_photo_face_features2)
+    if args.process_type == "video":
+        read_and_process_video(args.video_path, output_folder, app, swapper, source_face_dict)
+        reassemble_video(output_folder, args.video_path, args.final_output_folder)
+    elif args.process_type == "image":
+        process_single_image(args.image_path, output_folder, app, swapper, source_face_dict)
 
-    output_folder = '/content/frames'
-    video_path = '/content/drive/MyDrive/khujli/amol1.mp4'
-
-    read_and_process_video(video_path, output_folder, app, swapper, source_face_dict)
-
-    original_video_path = '/content/drive/MyDrive/khujli/amol1.mp4'
-    final_output_folder = '/content/output'
-    reassemble_video(output_folder, original_video_path, final_output_folder)
-
-    # Remove model from GPU
     clear_gpu_memory(app, swapper)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Face Swapping Script')
+    parser.add_argument('--model_path', type=str, help='Path to the model')
+    parser.add_argument('--source_images', type=str, nargs='+', help='Paths to source images')
+    parser.add_argument('--frame_images', type=str, nargs='+', help='Paths to frame images')
+    parser.add_argument('--output_folder', type=str, help='Path to output frames folder')
+    parser.add_argument('--final_output_folder', type=str, help='Path to final output folder')
+    parser.add_argument('--video_path', type=str, help='Path to the video file')
+    parser.add_argument('--image_path', type=str, help='Path to the image file')
+    parser.add_argument('--process_type', type=str, choices=['video', 'image'], help='Type of processing: "video" or "image"')
+
+    args = parser.parse_args()
+    main(args)

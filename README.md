@@ -1,5 +1,5 @@
 # anukriti
-Deepfake  made easy 
+**Deepfake  made easy **
 This is a single file I created for creating deep fakes.
 
 Download the file inswapper_128 (1).onnx from https://drive.google.com/file/d/1krOLgjW2tAPaqV-Bw4YALz0xT5zlb5HF/view?usp=sharing 
@@ -8,9 +8,35 @@ Download the file inswapper_128 (1).onnx from https://drive.google.com/file/d/1k
 This is just for academic purposed and I dont take any responsibility of any usage apart from academic. This project should not be used for maligning anyone or political purposes.
 I bear no responsibility for any malicious use of this
 
-Dependencies
+**Dependencies**
+
 pip install insightface
+
 pip install onnxruntime-gpu
+
+**How to run**
+
+!python anukriti.py --model_path "/content/drive/MyDrive/inswapper_128 (1).onnx" \
+                      --source_images "/content/drive/MyDrive/ranveer.jpg" "/content/drive/MyDrive/raghav.jpg"  \
+                      --frame_images "/content/drive/MyDrive/rajesh.jpg" "/content/drive/MyDrive/withrajesh.jpg" \
+                      --output_folder "/content/frames" \
+                      --final_output_folder "/content/output" \
+                      --video_path "/content/drive/MyDrive/meresapno1.mp4" \
+                      --process_type "video"
+Source images are images which u want to be used like say u want a ranveer singh to replace someone. 
+
+Frame images are faces in video frames . We have to also upload those face image. If say there are multiple faces in video maintain order accordingly with source images. First source replaces first face provided
+in frame images
+
+output folder is where your frames get accunmulated
+
+final_output_folder is where final video is stored
+
+video_path is the original video which is to be morphed
+
+process_type depends on if you want to morph video or image
+
+model_path is where u store the downloaded model from here ( https://drive.google.com/file/d/1krOLgjW2tAPaqV-Bw4YALz0xT5zlb5HF/view?usp=sharing )
 
 Examples
 

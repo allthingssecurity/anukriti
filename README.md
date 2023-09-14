@@ -17,11 +17,11 @@ pip install onnxruntime-gpu
 **How to run**
 
 !python anukriti.py --model_path "/content/drive/MyDrive/inswapper_128 (1).onnx" \
-                      --source_images "/content/drive/MyDrive/ranveer.jpg" "/content/drive/MyDrive/raghav.jpg"  \
-                      --frame_images "/content/drive/MyDrive/rajesh.jpg" "/content/drive/MyDrive/withrajesh.jpg" \
+                      --source_images "/content/drive/MyDrive/source1.jpg" "/content/drive/MyDrive/source2.jpg"  \
+                      --frame_images "/content/drive/MyDrive/frameimg1.jpg" "/content/drive/MyDrive/frameimg2.jpg" \
                       --output_folder "/content/frames" \
                       --final_output_folder "/content/output" \
-                      --video_path "/content/drive/MyDrive/meresapno1.mp4" \
+                      --video_path "/content/drive/MyDrive/source_video.mp4" \
                       --process_type "video"
 Source images are images which u want to be used like say u want a ranveer singh to replace someone. 
 

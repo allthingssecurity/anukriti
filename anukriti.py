@@ -6,8 +6,8 @@ import torch
 from insightface.app import FaceAnalysis
 from moviepy.editor import *
 
-def create_directories():
-    dir_names = ['frames', 'output']
+def create_directories(output_folder, final_output_folder):
+    dir_names = [output_folder, final_output_folder]
     for dir_name in dir_names:
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
@@ -139,7 +139,7 @@ def clear_gpu_memory(app, swapper):
 import argparse
 
 def main(args):
-    create_directories()
+    
 
     app, swapper = initialize_insightface(args.model_path)
 
@@ -153,6 +153,8 @@ def main(args):
         source_face_dict[frame_img_path] = (source_face, frame_photo_face_features)
 
     output_folder = args.output_folder
+    final_output_folder = args.final_output_folder
+    create_directories(output_folder,final_output_folder)
 
     if args.process_type == "video":
         read_and_process_video(args.video_path, output_folder, app, swapper, source_face_dict)

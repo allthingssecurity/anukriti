@@ -37,6 +37,31 @@ Here is the video
 https://github.com/allthingssecurity/anukriti/assets/49463903/49fb6f4d-14e9-4909-bf2d-faaa27c72748
 
 
+Anothe example
+
+Amitabh photo
+
+![amitabh](https://github.com/allthingssecurity/anukriti/assets/49463903/17b06c9f-af7c-4613-949c-8f3c35e35aee)
+
+
+Ranveer Singh Photo
+
+![ranveer](https://github.com/allthingssecurity/anukriti/assets/49463903/6ada8734-164c-4da6-a371-9fcc182ef43b)
+
+Original Video
+
+https://github.com/allthingssecurity/anukriti/assets/49463903/92178d6b-89e3-4d75-a81c-f86077e0ca73
+
+Morphed Video
+
+
+https://github.com/allthingssecurity/anukriti/assets/49463903/0310454c-2bea-4b1b-bba6-d35582d01ae5
+
+
+
+
+
+
 
 
 

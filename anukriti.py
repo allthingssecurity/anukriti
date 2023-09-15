@@ -47,20 +47,32 @@ def read_and_process_video(video_path, output_folder, app, swapper, source_face_
             print("Video has ended.")
             break
 
+        all_faces_similar = True  # Initialize flag to True for each frame
+
         faces = app.get(frame)
         for face in faces:
             face_features = face.normed_embedding
+            face_similar = False  # Initialize a flag for individual face similarity
+
             for frame_photo_name, (source_face, frame_photo_face_features) in source_face_dict.items():
                 similarity = np.dot(face_features, frame_photo_face_features.T)
                 if similarity > 0.5:
                     frame = swapper.get(frame, face, source_face[0], paste_back=True)
+                    face_similar = True  # Set individual face similarity flag to True
+                    break  # No need to check further for this face
 
-        frame_filename = os.path.join(output_folder, f"frame_{frame_count}.png")
-        cv2.imwrite(frame_filename, frame)
-        frame_count += 1
+            if not face_similar:  # If this face is not similar to any source face
+                all_faces_similar = False  # Set the overall frame flag to False
+                break  # No need to check further for this frame
+
+        if all_faces_similar:  # If all faces in the frame are similar to some source face
+            frame_filename = os.path.join(output_folder, f"frame_{frame_count}.png")
+            cv2.imwrite(frame_filename, frame)
+            frame_count += 1
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 def process_single_image(image_path, output_folder, app, swapper, source_face_dict):
     img = cv2.imread(image_path)

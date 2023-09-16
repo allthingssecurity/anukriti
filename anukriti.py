@@ -3,6 +3,7 @@ import numpy as np
 import insightface
 import os
 import torch
+from numpy.linalg import norm
 from insightface.app import FaceAnalysis
 from moviepy.editor import *
 
@@ -23,12 +24,18 @@ def initialize_insightface(model_path):
 
 from concurrent.futures import ThreadPoolExecutor
 
+
+
 def process_frame(frame, frame_count, output_folder, app, swapper, source_face, frame_photo_face_features):
     faces = app.get(frame)
     for face in faces:
         face_features = face.normed_embedding
-        similarity = np.dot(face_features, frame_photo_face_features.T)
-        if similarity > 0.3:
+
+        # Calculate cosine similarity
+        similarity = np.dot(face_features, frame_photo_face_features.T) / (norm(face_features) * norm(frame_photo_face_features))
+
+        # Adjust the threshold for cosine similarity (you may need to experiment with this value)
+        if similarity > 0.3:  
             frame = swapper.get(frame, face, source_face[0], paste_back=True)
 
     frame_filename = os.path.join(output_folder, f"frame_{frame_count}.png")
@@ -55,8 +62,9 @@ def read_and_process_video(video_path, output_folder, app, swapper, source_face_
             face_similar = False  # Initialize a flag for individual face similarity
 
             for frame_photo_name, (source_face, frame_photo_face_features) in source_face_dict.items():
-                similarity = np.dot(face_features, frame_photo_face_features.T)
-                if similarity > 0.5:
+                #similarity = np.dot(face_features, frame_photo_face_features.T)
+                similarity = np.dot(face_features, frame_photo_face_features.T) / (norm(face_features) * norm(frame_photo_face_features))
+                if similarity > 0.3:
                     frame = swapper.get(frame, face, source_face[0], paste_back=True)
                     face_similar = True  # Set individual face similarity flag to True
                     break  # No need to check further for this face
